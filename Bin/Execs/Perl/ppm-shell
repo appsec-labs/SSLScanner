@@ -1,0 +1,22 @@
+#!/usr/bin/perl -w
+
+use strict;
+BEGIN { $ENV{TERM} = "dumb" if $^O eq "MSWin32" }
+use Term::ReadLine ();
+use Text::ParseWords qw(shellwords);
+
+system("ppm", "--version");
+exit 1 if $? != 0;
+
+my $term = new Term::ReadLine 'PPM';
+my $prompt = "ppm> ";
+my $OUT = $term->OUT || \*STDOUT;
+while ( defined ($_ = $term->readline($prompt)) ) {
+    last if /^(quit|exit)$/;
+    my @w = shellwords($_);
+    if (@w) {
+	system("ppm", @w);
+        $term->addhistory($_);
+    }
+}
+print "\n";

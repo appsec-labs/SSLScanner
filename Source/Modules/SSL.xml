@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Module name="SSL">
+    <default>--Regular-Scan</default>
+    <Options>
+    <Option name = "--Regular-Scan">
+        <Command id="1">
+            <ToolName>SSLyze</ToolName>
+            <ToolCommand>Regular Scan</ToolCommand>
+        </Command>
+        <Command id="2">
+            <ToolName>SSLScan</ToolName>
+            <ToolCommand>No Failed Scan</ToolCommand>       
+        </Command>
+        <Command id="3">
+            <ToolName>Nmap-Poodle</ToolName>
+            <ToolCommand>Poodle</ToolCommand>       
+        </Command>
+        <Command id="4">
+            <ToolName>Nmap-Heartbleed</ToolName>
+            <ToolCommand>HeartBleed</ToolCommand>       
+        </Command>
+        <Command id="5">
+            <ToolName>OpenSSL-TLS_FALLBACK_SCSV</ToolName>
+            <ToolCommand>TLS_FALLBACK_SCSV</ToolCommand>       
+        </Command>
+        <Command id="6">
+            <ToolName>Beast-Crime SSL</ToolName>
+            <ToolCommand>Beast-Crime</ToolCommand>       
+        </Command>
+        <Command id="7">
+            <ToolName>SSL-FREAK</ToolName>
+            <ToolCommand>FREAK</ToolCommand>       
+        </Command>
+		 <Command id="8">
+            <ToolName>Beast-Check</ToolName>
+            <ToolCommand>Beast-Check-Command</ToolCommand>       
+        </Command>
+        <Exp>A regular scan that tests for poodle, SSLv3, SSLv2 and more...</Exp>
+    </Option>
+    </Options>
+	<Tools>
+	<Tool name = "Beast-Crime SSL">
+            <Path>TestSSLServer</Path>
+            <cmd>TestSSLServer.exe</cmd>
+            <Commands>
+                <Command name = "Beast-Crime">
+                    <Arg>PyHST</Arg>
+                </Command>
+            </Commands>
+            <Filters>
+                 <FilterName>Crime Vulnerable</FilterName>
+            </Filters>
+        </Tool>
+	   <Tool name = "OpenSSL-TLS_FALLBACK_SCSV">
+            <Path>OpenSSL</Path>
+            <cmd>openssl.exe</cmd>
+            <Commands>
+                <Command name = "TLS_FALLBACK_SCSV">
+                    <Arg>s_client -connect PyHST:PyPort -fallback_scsv -no_tls1_2</Arg>
+                </Command>
+            </Commands>
+            <Filters>
+                 <FilterName>TLS_FALLBACK_SCSV Support</FilterName>
+            </Filters>
+        </Tool>
+		<Tool name = "Beast-Check">
+            <Path>Beast</Path>
+            <cmd>Beast.exe</cmd>
+            <Commands>
+                <Command name = "Beast-Check-Command">
+                    <Arg>PyHST PyPort</Arg>
+                </Command>
+            </Commands>
+            <Filters>
+                 <FilterName>Beast-Check-Filter</FilterName>
+            </Filters>
+        </Tool>
+	   <Tool name = "Nmap-Poodle">
+            <Path>nmap</Path>
+            <cmd>nmap.exe</cmd>
+            <Commands>
+                <Command name = "Poodle">
+                    <Arg>-p PyPort --script ssl-poodle,ssl-enum-ciphers,ssl-cert --unprivileged PyHST</Arg>
+                </Command>
+            </Commands>
+            <Filters>
+                 <FilterName>Poodle Support</FilterName>
+            </Filters>
+        </Tool>
+        <Tool name = "SSL-FREAK">
+            <Path>FREAK</Path>
+            <cmd>FREAK_Checker.exe</cmd>
+            <Commands>
+                <Command name = "FREAK">
+                    <Arg>PyHST</Arg>
+                </Command>
+            </Commands>
+            <Filters>
+                 <FilterName>FREAK Vulnerable</FilterName>
+            </Filters>
+        </Tool>
+        <Tool name = "Nmap-Heartbleed">
+            <Path>nmap</Path>
+            <cmd>nmap.exe</cmd>
+            <Commands>
+                <Command name = "HeartBleed">
+                    <Arg>-p PyPort --script ssl-heartbleed --unprivileged PyHST</Arg>
+                </Command>
+            </Commands>
+            <Filters>
+                 <FilterName>Heartbleed Vulnerability</FilterName>
+            </Filters>
+        </Tool>
+        
+		<Tool name = "SSLyze">
+			<Path>SSLyze</Path>
+			<cmd>sslyze.exe</cmd>
+			<Commands>
+				<Command name = "Regular Scan">
+					<Arg>--regular PyHST:PyPort</Arg>
+				</Command>
+			</Commands>
+			<Filters>
+                 <FilterName>Client-initiated Renegotiations</FilterName>
+                 <FilterName>Secure Renegotiation</FilterName>
+                 <FilterName>HSTS header</FilterName>
+                 <FilterName>Deflate compression</FilterName>
+                 <FilterName>OCSP Stapling</FilterName>
+                 
+            </Filters>
+		</Tool>
+		<Tool name = "SSLScan">
+			<Path>SSLScan</Path>
+			<cmd>SSLScan.exe</cmd>
+			<Commands>
+				<Command name = "Regular Scan">
+					<Arg>PyHST</Arg>
+				</Command>
+				<Command name = "No Failed Scan">
+					<Arg>--no-failed PyHST</Arg>
+				</Command>
+			</Commands>
+			<Filters>
+			     <FilterName>SSLv3 Exists</FilterName>
+			     <FilterName>SSLv2 Exists</FilterName>
+			     <FilterName>Weak Cipher DES</FilterName>
+			     <FilterName>Weak Cipher RC4</FilterName>
+			     <FilterName>Weak Hash MD5</FilterName>
+			     <FilterName>WeakEncKeys</FilterName>
+			</Filters>
+		</Tool>
+	</Tools>
+	<Filters>
+	<Filter name = "SSLv3 Exists">
+        <FilterExpressions>
+            <Expression number='1'>
+                <ToolName>SSLScan</ToolName>
+                <InOutput>Accepted</InOutput>
+                <InOutput>SSLv3</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Server accepts SSLv3 Ciphers</FilterOutput>
+    </Filter>
+	<Filter name = "Beast-Check-Filter">
+        <FilterExpressions>
+            <Expression number='1'>
+                <ToolName>Beast-Check</ToolName>
+                <InOutput>Vulnerable: YES</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Server is Vulnerable to Beast Attack</FilterOutput>
+    </Filter>
+    <Filter name = "Client-initiated Renegotiations">
+        <FilterExpressions>
+            <Expression number='1'>
+                <ToolName>SSLyze</ToolName>
+                <InOutput>Client-initiated Renegotiations:   VULNERABLE</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>VULNERABLE - Server honors client-initiated renegotiations</FilterOutput>
+    </Filter>
+    <Filter name = "Secure Renegotiation">
+        <FilterExpressions>
+            <Expression number='1'>
+                <ToolName>SSLyze</ToolName>
+                <InOutput>Secure Renegotiation:              VULNERABLE</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>VULNERABLE - Secure renegotiation not supported</FilterOutput>
+    </Filter>
+    <Filter name = "OCSP Stapling">
+        <FilterExpressions>
+            <Expression number='1'>
+                <ToolName>SSLyze</ToolName>
+                <InOutput>Server did not send back an OCSP response</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>Server did not send back an OCSP response</FilterOutput>
+    </Filter>
+    <Filter name = "Deflate compression">
+        <FilterExpressions>
+            <Expression number='1'>
+                <ToolName>SSLyze</ToolName>
+                <InOutput>VULNERABLE - Server supports Deflate compression</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>VULNERABLE - Server supports Deflate compression</FilterOutput>
+    </Filter>
+        <Filter name = "HSTS header">
+        <FilterExpressions>
+            <Expression number='1'>
+                <ToolName>SSLyze</ToolName>
+                <InOutput>NOT SUPPORTED - Server did not send an HSTS header</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>Server did not send an HSTS header (For downgrade protection)</FilterOutput>
+    </Filter>
+    <Filter name = "SSLv2 Exists">
+        <FilterExpressions>
+            <Expression number='2'>
+                <ToolName>SSLScan</ToolName>
+                <InOutput>Accepted</InOutput>
+                <InOutput>SSLv2</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Server accepts SSLv2 Ciphers</FilterOutput>
+        </Filter>
+        <Filter name = "FREAK Vulnerable">
+        <FilterExpressions>
+            <Expression number='2'>
+                <ToolName>SSL-FREAK</ToolName>
+                <InOutput>Vulnerable</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Server is vulnerable to SSL FREAK Attack</FilterOutput>
+        </Filter>
+        <Filter name = "Weak Cipher DES">
+        <FilterExpressions>
+            <Expression number='3'>
+                <ToolName>SSLScan</ToolName>
+                <InOutput>DES</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Sever supports weak encryption algorithm: DES</FilterOutput>
+        </Filter>
+        <Filter name = "Weak Cipher RC4">
+        <FilterExpressions>
+            <Expression number='3.1'>
+                <ToolName>SSLScan</ToolName>
+                <InOutput>RC4</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Sever supports weak encryption algorithm: RC4</FilterOutput>
+        </Filter>
+        <Filter name = "Weak Hash MD5">
+        <FilterExpressions>
+            <Expression number='3.1'>
+                <ToolName>SSLScan</ToolName>
+                <InOutput>MD5</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Sever supports weak hash algorithm: MD5</FilterOutput>
+        </Filter>
+        <Filter name = "TLS_FALLBACK_SCSV Support">
+        <FilterExpressions>
+            <Expression number='4'>
+                <ToolName>OpenSSL-TLS_FALLBACK_SCSV</ToolName>
+                <InOutput>CONNECTED(00000100)</InOutput>
+                <InOutput>SSL-Session</InOutput>
+                <InOutput>Protocol  : TLSv1</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Server supports SSL TLS_FALLBACK_SCSV flag</FilterOutput>
+    </Filter>
+    <Filter name = "Poodle Support">
+        <FilterExpressions>
+            <Expression number='5'>
+                <ToolName>Nmap-Poodle</ToolName>
+                <InOutput>VULNERABLE:</InOutput>
+                <InOutput>State: VULNERABLE</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Server is vulnerable to SSL-POODLE Attacks</FilterOutput>
+    </Filter>
+    <Filter name = "Heartbleed Vulnerability">
+        <FilterExpressions>
+            <Expression number='6'>
+                <ToolName>Nmap-Heartbleed</ToolName>
+                <InOutput>VULNERABLE:</InOutput>
+                <InOutput>State: VULNERABLE</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Server is vulnerable to SSL-HeartBleed Attacks</FilterOutput>
+        </Filter>
+         <Filter name = "Beast Vulnerable">
+        <FilterExpressions>
+            <Expression number='7'>
+                <ToolName>Beast-Crime SSL</ToolName>
+                <InOutput>BEAST status: vulnerable</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Server is vulnerable to SSL-BEAST Attacks</FilterOutput>
+        </Filter>
+         <Filter name = "Crime Vulnerable">
+        <FilterExpressions>
+            <Expression number='8'>
+                <ToolName>Beast-Crime SSL</ToolName>
+                <InOutput>CRIME status: vulnerable</InOutput>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Server is vulnerable to SSL-Crime Attacks</FilterOutput>
+        </Filter>
+        <Filter name = "WeakEncKeys">
+        <FilterExpressions>
+            <Expression number='9'>
+                <ToolName>SSLScan</ToolName>
+                <RegEx>
+                    <Pattern>\b0*([0-9]{1,2}|1[0-5][0-9]|16[0-7])\b bits \s*[A-Za-z0-9]{1,20}\-[A-Za-z0-9]{1,20}\s</Pattern>
+                </RegEx>
+            </Expression>
+        </FilterExpressions>
+        <FilterOutput>The Server accepts short length and cipher: {0}</FilterOutput>
+    </Filter>
+	</Filters>
+</Module>

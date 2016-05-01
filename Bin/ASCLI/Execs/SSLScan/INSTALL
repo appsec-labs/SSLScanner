@@ -1,0 +1,5 @@
+Requirements:
+   OpenSSL (http://www.slproweb.com/products/Win32OpenSSL.html)
+
+Build instructions:
+      vcbuild SSLScan.sln
